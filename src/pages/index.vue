@@ -4,7 +4,7 @@ import * as Cesium from 'cesium'
 const viewerInstance = ref<Cesium.Viewer | null>(null)
 function mapLoaded(viewer: Cesium.Viewer) {
   viewerInstance.value = viewer
-  addGoogle3DTileset(viewer)
+  // addGoogle3DTileset(viewer)
 }
 
 async function addGoogle3DTileset(viewer: Cesium.Viewer) {
