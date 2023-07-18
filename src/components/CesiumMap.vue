@@ -42,3 +42,9 @@ function initMars3d(option: any) {
 <template>
   <div ref="$container" class="h-full w-full" />
 </template>
+
+<style>
+.cesium-viewer-bottom{
+  display: none !important;
+}
+</style>
