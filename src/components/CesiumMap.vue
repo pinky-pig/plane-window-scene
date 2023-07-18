@@ -2,9 +2,7 @@
 import { onMounted } from 'vue'
 import * as Cesium from 'cesium'
 import { DEFAULT_OPTION } from '~/cesium/params'
-
-// eslint-disable-next-line import/no-named-default
-import { default as SkyBox } from '~/cesium/skybox'
+import { setSkybox } from '~/cesium/setup'
 
 const props = withDefaults(
   defineProps<{
@@ -40,25 +38,7 @@ function initMars3d(option: any) {
     )
     emit('onload', viewer)
 
-    const blueSkySkybox = new SkyBox({
-      sources: {
-        positiveX: '/skybox/px.png', // 右
-        negativeX: '/skybox/nx.png', // 左
-        positiveY: '/skybox/pz.png', // 上
-        negativeY: '/skybox/nz.png', // 下
-        positiveZ: '/skybox/py.png', // 前
-        negativeZ: '/skybox/ny.png', // 后
-      },
-      nearGround: true,
-    })
-    // 如果相机高度小于2000米，则显示蓝天
-    viewer.scene.postRender.addEventListener(() => {
-      const e = viewer!.camera.position
-      if (Cesium.Cartographic.fromCartesian(e).height < 2000) {
-        viewer!.scene.skyBox = blueSkySkybox
-        viewer!.scene.skyAtmosphere.show = false
-      }
-    })
+    setSkybox(viewer)
   }
 }
 </script>

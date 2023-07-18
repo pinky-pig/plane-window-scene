@@ -82,7 +82,7 @@ void main()
  * @see Scene#skyBox
  * @see Transforms.computeTemeToPseudoFixedMatrix
  */
-function SkyBox(options) {
+export function SkyBox(options) {
   /**
    * The sources used to create the cube map faces: an object
    * with <code>positiveX</code>, <code>negativeX</code>, <code>positiveY</code>,
@@ -288,4 +288,3 @@ SkyBox.prototype.destroy = function () {
   this._cubeMap = this._cubeMap && this._cubeMap.destroy()
   return destroyObject(this)
 }
-export default SkyBox
