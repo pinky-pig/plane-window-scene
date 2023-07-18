@@ -4,15 +4,15 @@ import * as Cesium from 'cesium'
 const viewerInstance = ref<Cesium.Viewer | null>(null)
 function mapLoaded(viewer: Cesium.Viewer) {
   viewerInstance.value = viewer
-  // addGoogle3DTileset(viewer)
+  addGoogle3DTileset(viewer)
 }
 
 async function addGoogle3DTileset(viewer: Cesium.Viewer) {
   viewer.scene.globe.show = false
 
   try {
-    const tileset = await Cesium.createGooglePhotorealistic3DTileset()
-    viewer.scene.primitives.add(tileset)
+    // const tileset = await Cesium.createGooglePhotorealistic3DTileset()
+    // viewer.scene.primitives.add(tileset)
   }
   catch (error) {
     // eslint-disable-next-line no-console
