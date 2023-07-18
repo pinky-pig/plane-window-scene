@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { Viewer } from 'cesium'
-import type * as Cesium from 'cesium'
+import * as Cesium from 'cesium'
 import { DEFAULT_OPTION } from '~/cesium/params'
 
 const props = withDefaults(
@@ -31,7 +30,7 @@ onUnmounted(() => {
 
 function initMars3d(option: any) {
   if ($container.value) {
-    viewer = new Viewer(
+    viewer = new Cesium.Viewer(
       $container.value,
       { ...DEFAULT_OPTION, ...option },
     )
@@ -41,5 +40,5 @@ function initMars3d(option: any) {
 </script>
 
 <template>
-  <div ref="$container" />
+  <div ref="$container" class="h-full w-full" />
 </template>
