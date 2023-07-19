@@ -24,10 +24,10 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (viewer) {
-    viewer.destroy()
-    viewer = null
-  }
+  // if (viewer) {
+  //   viewer.destroy()
+  //   viewer = null
+  // }
 })
 
 function initMars3d(option: any) {

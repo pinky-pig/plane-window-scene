@@ -5,7 +5,7 @@ export function setSkybox(viewer: Cesium.Viewer) {
 // 如果相机高度小于2000米，则显示蓝天
   viewer.scene.postRender.addEventListener(() => {
     const e = viewer!.camera.position
-    if (Cesium.Cartographic.fromCartesian(e).height < 2000) {
+    if (Cesium.Cartographic.fromCartesian(e).height < 5000) {
       viewer!.scene.skyBox = DaylightSkybox
       viewer!.scene.skyAtmosphere.show = false
     }
