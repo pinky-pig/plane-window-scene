@@ -2,7 +2,7 @@
 import { onMounted } from 'vue'
 import * as Cesium from 'cesium'
 import { DEFAULT_OPTION } from '~/cesium/params'
-import { setSkybox } from '~/cesium/setup'
+import { setMouseAction, setSkybox } from '~/cesium/setup'
 
 const props = withDefaults(
   defineProps<{
@@ -39,6 +39,7 @@ function initMars3d(option: any) {
     emit('onload', viewer)
 
     setSkybox(viewer)
+    setMouseAction(viewer)
   }
 }
 </script>
