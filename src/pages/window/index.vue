@@ -53,7 +53,7 @@ function mapLoaded(viewer: Cesium.Viewer) {
 }
 
 .box-container img {
-  height: 90vh;
+  max-height: 90vh;
   width: auto;
   display: block;
   object-fit: contain;
