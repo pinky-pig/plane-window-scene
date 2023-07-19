@@ -9,27 +9,34 @@ function mapLoaded(viewer: Cesium.Viewer) {
 
   const position = Cesium.Cartesian3.fromDegrees(DefaultPosition[0], DefaultPosition[1], DefaultPosition[2])
   async function loadModel() {
-    viewer.entities.add({
+    await viewer.entities.add({
       position,
       model: { uri: DefaultPlaneUrl },
     })
-    viewer.zoomTo(viewer.entities)
   }
   loadModel()
 
-  function loadModel1() {
-    const position = Cesium.Cartesian3.fromDegrees(DefaultPosition[0], DefaultPosition[1], DefaultPosition[2] + 100)
+  flyTo(viewer)
+}
 
-    viewer.entities.add({
-      position,
-      model: {
-        uri: DefaultPlaneUrl,
-        minimumPixelSize: 128,
-        maximumScale: 20000,
+function flyTo(viewer: Cesium.Viewer) {
+  if (viewer) {
+    const position = Cesium.Cartesian3.fromDegrees(DefaultPosition[0], DefaultPosition[1], DefaultPosition[2] + 100)
+    viewer.camera.flyTo({
+      destination: position,
+      duration: 2,
+      complete: () => {
+        const center = Cesium.Cartesian3.fromDegrees(DefaultPosition[0], DefaultPosition[1], DefaultPosition[2])
+        viewer.camera.flyToBoundingSphere(
+          new Cesium.BoundingSphere(center, -0),
+          {
+            offset: new Cesium.HeadingPitchRange(Cesium.Math.toRadians(0), Cesium.Math.toRadians(-15), 0),
+            duration: 2,
+          },
+        )
       },
     })
   }
-  loadModel1()
 }
 </script>
 
