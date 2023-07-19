@@ -57,3 +57,6 @@ export const DEFAULT_OPTION: Cesium.Viewer.ConstructorOptions = {
 
   skyBox: UniverseSkybox,
 }
+
+export const DefaultPosition = [-122.39053, 37.61779, -27.32]
+export const DefaultPlaneUrl = '/model/plane.glb'
