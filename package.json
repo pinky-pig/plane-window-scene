@@ -14,6 +14,7 @@
   "dependencies": {
     "@cesium/engine": "^3.0.1",
     "@cesium/widgets": "^3.0.1",
+    "@tweenjs/tween.js": "^21.0.0",
     "@vueuse/core": "^10.1.2",
     "vue": "^3.3.4",
     "vue-router": "^4.2.2"

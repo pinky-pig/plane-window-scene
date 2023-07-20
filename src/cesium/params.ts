@@ -43,7 +43,7 @@ export const DEFAULT_OPTION: Cesium.Viewer.ConstructorOptions = {
   // 问号图标，导航帮助按钮，显示默认的地图控制帮助
   navigationHelpButton: false,
   animation: false, // 动画器件，显示当前时间，允许跳转特定时间
-  timeline: false, // 时间轴
+  timeline: true, // 时间轴
   // 全屏图标，全屏按钮
   fullscreenButton: false,
   // 虚拟现实
