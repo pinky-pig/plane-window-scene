@@ -20,7 +20,7 @@ const $container = ref<Element | null>(null)
 let viewer: Cesium.Viewer | null
 
 onMounted(() => {
-  initMars3d(props.options)
+  initCesiumViewer(props.options)
 })
 
 onUnmounted(() => {
@@ -30,7 +30,7 @@ onUnmounted(() => {
   // }
 })
 
-function initMars3d(option: any) {
+function initCesiumViewer(option: any) {
   if ($container.value) {
     viewer = new Cesium.Viewer(
       $container.value,
