@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import * as Cesium from 'cesium'
 import { ref } from 'vue'
-import { DefaultPlaneUrl, DefaultPosition } from '~/cesium/params'
+import * as TWEEN from '@tweenjs/tween.js'
+import { DefaultPath, DefaultPosition } from '~/cesium/params'
 
 // 1. 天空视角
 // 3. 加载 Google 3DTiles
@@ -9,6 +10,7 @@ import { DefaultPlaneUrl, DefaultPosition } from '~/cesium/params'
 // 5. 设置镜头跟随模型轨迹移动 Timeline
 // 6. 点击画面，移动暂停
 // 7. 鼠标松开 5s 后继续
+// https://sandcastle.cesium.com/?src=Interpolation.html
 
 const viewerInstance = ref<Cesium.Viewer | null>(null)
 const mapOptions = { }
@@ -18,10 +20,6 @@ function mapLoaded(viewer: Cesium.Viewer) {
   viewerInstance.value = viewer
 
   main(viewer)
-  // flyTo(viewer)
-  // flyPath(viewer)
-
-  // flyTween(viewer)
 }
 
 function main(viewer: Cesium.Viewer) {
@@ -39,75 +37,79 @@ function main(viewer: Cesium.Viewer) {
   // 3. 提示开始运动
 
   // 4. 视角下移倾斜
-  setTimeout(() => {
-    const center = Cesium.Cartesian3.fromDegrees(DefaultPosition[0], DefaultPosition[1], DefaultPosition[2])
-    viewer.camera.flyToBoundingSphere(
-      new Cesium.BoundingSphere(center, -0),
-      {
-        offset: new Cesium.HeadingPitchRange(
-          Cesium.Math.toRadians(0),
-          Cesium.Math.toRadians(-15),
-          0,
-        ),
-        duration: 2,
-      },
-    )
-  }, 1000 * 5)
+  // setTimeout(() => {
+  //   const center = Cesium.Cartesian3.fromDegrees(DefaultPosition[0], DefaultPosition[1], DefaultPosition[2])
+  //   viewer.camera.flyToBoundingSphere(
+  //     new Cesium.BoundingSphere(center, -0),
+  //     {
+  //       offset: new Cesium.HeadingPitchRange(
+  //         Cesium.Math.toRadians(0),
+  //         Cesium.Math.toRadians(-15),
+  //         0,
+  //       ),
+  //       duration: 2,
+  //     },
+  //   )
+  // }, 1000 * 5)
 
   setTimeout(() => {
-    const start = Cesium.JulianDate.fromDate(new Date(2015, 2, 25, 16))
-    const stop = Cesium.JulianDate.addSeconds(
-      start,
-      360,
-      new Cesium.JulianDate(),
-    )
+    const viewPoints = DefaultPath
 
-    // Make sure viewer is at the desired time.
-    viewer.clock.startTime = start.clone()
-    viewer.clock.stopTime = stop.clone()
-    viewer.clock.currentTime = start.clone()
-    viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP // Loop at the end
-    viewer.clock.multiplier = 10
+    const tweens = []
+    let animateId: number = 0
 
-    // Set timeline to simulation bounds
-    viewer.timeline.zoomTo(start, stop)
+    for (let i = 0; i < viewPoints.length - 1; i++) {
+      const startObject = viewPoints[i]
+      const stopObject = viewPoints[i + 1]
+      const duration = Cesium.defaultValue(stopObject.duration, 3) * 1000
 
-    function computeCirclularFlight(lon: number, lat: number, radius: number) {
-      const property = new Cesium.SampledPositionProperty()
-      for (let i = 0; i <= 360; i += 45) {
-        const radians = Cesium.Math.toRadians(i)
-        const time = Cesium.JulianDate.addSeconds(
-          start,
-          i,
-          new Cesium.JulianDate(),
-        )
-        const position = Cesium.Cartesian3.fromDegrees(
-          lon + radius * 1.5 * Math.cos(radians),
-          lat + radius * Math.sin(radians),
-          Cesium.Math.nextRandomNumber() * 500 + 1750,
-        )
-        property.addSample(time, position)
-      }
-      return property
+      const tween = new TWEEN.Tween(startObject)
+        .to(stopObject, duration) // 使用duration作为过渡时间
+        .easing(TWEEN.Easing.Linear.None)
+        .onUpdate((elapsed) => {
+          const position = Cesium.Cartesian3.fromDegrees(elapsed.lng, elapsed.lat, elapsed.alt)
+
+          viewer.scene.camera.setView({
+            destination: position,
+            orientation: {
+              heading: Cesium.Math.toRadians(elapsed.heading ?? 0),
+              pitch: Cesium.Math.toRadians(elapsed.pitch ?? -90),
+              // heading: Cesium.Math.toRadians(0),
+              // pitch: Cesium.Math.toRadians(0),
+              roll: Cesium.Math.toRadians(0),
+            },
+          })
+        })
+        .onComplete(() => {
+          // 检查当前Tween是否达到了最后一个点
+          if (i === viewPoints.length - 2) {
+            // 停止动画更新循环，不再调用TWEEN.update()
+            cancelAnimationFrame(animateId)
+          }
+        })
+
+      tweens.push(tween)
     }
-    const position = computeCirclularFlight(-112.110693, 36.0994841, 0.03)
 
-    const entity = viewer.entities.add({
-      show: true,
-      position,
-      orientation: new Cesium.VelocityOrientationProperty(position),
+    // 将数组中的动画链式调用
+    for (let i = 0; i < tweens.length; i++) {
+      if (i === tweens.length - 1) {
+        tweens[i].chain()
+        break
+      }
+      tweens[i].chain(tweens[i + 1])
+    }
 
-      model: {
-        scale: 0.5,
-        uri: DefaultPlaneUrl,
-        minimumPixelSize: 64,
-        color: Cesium.Color.TRANSPARENT,
-      },
+    // 动画更新循环
+    function animate() {
+      animateId = requestAnimationFrame(animate)
+      TWEEN.update()
+    }
 
-    })
-
-    viewer.trackedEntity = entity
-  }, 1000 * 10)
+    // 启动动画循环
+    animate()
+    tweens[0].start()
+  }, 1000 * 6)
 }
 
 async function handleClick() {

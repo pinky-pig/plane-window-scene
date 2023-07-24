@@ -5,11 +5,11 @@ import { DefaultPlaneUrl, DefaultPosition } from './params'
 // 1. Tween.js 跟镜头飞行的结合
 export function flyTween(viewer: Cesium.Viewer) {
   const viewPoints = [
-    { id: 0, name: '地铁口', lat: 22.7407925, lng: 108.3393365, alt: 90.7, heading: 37.4, pitch: -7.1, duration: 4 },
-    { id: 1, name: '电梯口1', lat: 22.7408074, lng: 108.3403484, alt: 100.7, heading: 37.4, pitch: -5.3, duration: 5 },
-    { id: 2, name: '电梯口2', lat: 22.7408334, lng: 108.3513717, alt: 110.6, heading: 41.6, pitch: -30.5, duration: 6 },
-    { id: 3, name: '电梯底部', lat: 22.7409422, lng: 108.3624671, alt: 120.4, heading: 38.9, pitch: -34.6, duration: 7 },
-    { id: 4, name: '进地铁2', lat: 22.7412386, lng: 108.3733242, alt: 130.9, heading: 272.8, pitch: -4.8, duration: 8 },
+    { id: 0, name: '地铁口', lat: 22.7407925, lng: 108.3393365, alt: 90.7, heading: 37.4, pitch: -7.1, duration: 3 },
+    { id: 1, name: '电梯口1', lat: 22.7408074, lng: 108.3403484, alt: 100.7, heading: 37.4, pitch: -5.3, duration: 3 },
+    { id: 2, name: '电梯口2', lat: 22.7408334, lng: 108.3513717, alt: 110.6, heading: 41.6, pitch: -30.5, duration: 3 },
+    { id: 3, name: '电梯底部', lat: 22.7409422, lng: 108.3624671, alt: 120.4, heading: 38.9, pitch: -34.6, duration: 3 },
+    { id: 4, name: '进地铁2', lat: 22.7412386, lng: 108.3733242, alt: 130.9, heading: 272.8, pitch: -4.8, duration: 3 },
   ]
 
   const tweens = []
@@ -45,9 +45,17 @@ export function flyTween(viewer: Cesium.Viewer) {
           cancelAnimationFrame(animateId)
         }
       })
-      .start()
 
     tweens.push(tween)
+  }
+
+  for (let i = 0; i < tweens.length; i++) {
+    if (i === tweens.length - 1) {
+      tweens[i].chain()
+      break
+    }
+
+    tweens[i].chain(tweens[i + 1])
   }
 
   // 动画更新循环
@@ -58,6 +66,7 @@ export function flyTween(viewer: Cesium.Viewer) {
 
   // 启动动画循环
   animate()
+  tweens[0].start()
 }
 
 // 2. 镜头跟随模型轨迹飞行
@@ -149,4 +158,52 @@ export function flyTo(viewer: Cesium.Viewer) {
       },
     })
   }
+}
+
+// 4. 镜头飞行动画，起点到目的地点的飞行
+export function losAngelesToTokyo(viewer: Cesium.Viewer) {
+  const adjustPitch = true
+  const camera = viewer.scene.camera
+
+  const tokyoOptions: any = {
+    destination: Cesium.Cartesian3.fromDegrees(
+      139.8148,
+      35.7142,
+      20000.0,
+    ),
+    orientation: {
+      heading: Cesium.Math.toRadians(15.0),
+      pitch: Cesium.Math.toRadians(-60),
+      roll: 0.0,
+    },
+    duration: 20,
+    flyOverLongitude: Cesium.Math.toRadians(60.0),
+  }
+
+  const laOptions: any = {
+    destination: Cesium.Cartesian3.fromDegrees(
+      -117.729,
+      34.457,
+      10000.0,
+    ),
+    duration: 5,
+    orientation: {
+      heading: Cesium.Math.toRadians(-15.0),
+      pitch: -Cesium.Math.PI_OVER_FOUR,
+      roll: 0.0,
+    },
+  }
+
+  laOptions.complete = function () {
+    setTimeout(() => {
+      camera.flyTo(tokyoOptions)
+    }, 1000)
+  }
+
+  if (adjustPitch) {
+    tokyoOptions.pitchAdjustHeight = 1000
+    laOptions.pitchAdjustHeight = 1000
+  }
+
+  camera.flyTo(laOptions)
 }

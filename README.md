@@ -33,7 +33,7 @@
 
 3. 修改 Skybox 的样式。主要是分为两块， Skybox 是宇宙中全景图，还需要修改近地全景图。而全景图需要几步：获取全景图、切割全景图、旋转全景图，再按照 Cesium 对应顺序加载即可。
 
-4. 设置视角方向。设置视角地点很好设置 flyTo ，包括动画，直接在属性中设置就行了。设置视角倾斜角度的时候，也可以使用 flyTo 但是视角中心并不是 flyTo 的中心，所以效果不是很好。当使用 camera.setView 或者 viewer.zoomTo 等也都是可以，但是并不能设置 duration ， 所以这里使用了 viewer.camera.flyToBoundingSphere ，可以设置 duration ，但是需要传入一个 Cesium.BoundingSphere 对象。可以直接使用，也可以跟 flyTo 结合起来做一些动画效果，比如先飞到目的地点再旋转倾斜视角。
+4. 设置视角方向。设置视角地点很好设置 flyTo ，包括动画，直接在属性中设置就行了。设置视角倾斜角度的时候，也可以使用 flyTo 但是视角中心并不是 flyTo 的中心，所以效果不是很好。当然， flyTo 也可以设置起点到终点的过渡动画，即在起点过渡多久，镜头朝向等，到目的地的过渡时间，镜头倾斜等。当使用 camera.setView 或者 viewer.zoomTo 等也都是可以，但是并不能设置 duration ， 所以这里使用了 viewer.camera.flyToBoundingSphere ，可以设置 duration ，但是需要传入一个 Cesium.BoundingSphere 对象。可以直接使用，也可以跟 flyTo 结合起来做一些动画效果，比如先飞到目的地点再旋转倾斜视角。
 
 5. 设置视角跟随模型移动，模型跟随轨迹移动。这里是有一个移动的线的点集，添加一个模型跟着线运动，然后将相机视角跟模型绑定，这样相机就跟着线运动了。但是遇到了一个小坑，就是模型设置隐藏的时候 （ show:false ） ，模型并不会运动了，相机视角也不会运动了。而当打算使用另一个小技巧，就是将模型的 scale 设置为 0 ，这样模型就看不见了，但是还是会运动的，结果发现并不能隐藏模型。于是就出现了另一个小技巧，将模型透明度设置为 0 ，这样模型就看不见了，而且相机视角也会跟着运动，最终成功！
 
@@ -142,13 +142,13 @@ function flyPath(viewer: Cesium.Viewer) {
 ```ts
 // 设置补间动画
 
-function flyTween(viewer: Cesium.Viewer) {
+export function flyTween(viewer: Cesium.Viewer) {
   const viewPoints = [
-    { id: 0, name: '地铁口', lat: 22.7407925, lng: 108.3393365, alt: 90.7, heading: 37.4, pitch: -7.1, duration: 4 },
-    { id: 1, name: '电梯口1', lat: 22.7408074, lng: 108.3403484, alt: 100.7, heading: 37.4, pitch: -5.3, duration: 5 },
-    { id: 2, name: '电梯口2', lat: 22.7408334, lng: 108.3513717, alt: 110.6, heading: 41.6, pitch: -30.5, duration: 6 },
-    { id: 3, name: '电梯底部', lat: 22.7409422, lng: 108.3624671, alt: 120.4, heading: 38.9, pitch: -34.6, duration: 7 },
-    { id: 4, name: '进地铁2', lat: 22.7412386, lng: 108.3733242, alt: 130.9, heading: 272.8, pitch: -4.8, duration: 8 },
+    { id: 0, name: '地铁口', lat: 22.7407925, lng: 108.3393365, alt: 90.7, heading: 37.4, pitch: -7.1, duration: 3 },
+    { id: 1, name: '电梯口1', lat: 22.7408074, lng: 108.3403484, alt: 100.7, heading: 37.4, pitch: -5.3, duration: 3 },
+    { id: 2, name: '电梯口2', lat: 22.7408334, lng: 108.3513717, alt: 110.6, heading: 41.6, pitch: -30.5, duration: 3 },
+    { id: 3, name: '电梯底部', lat: 22.7409422, lng: 108.3624671, alt: 120.4, heading: 38.9, pitch: -34.6, duration: 3 },
+    { id: 4, name: '进地铁2', lat: 22.7412386, lng: 108.3733242, alt: 130.9, heading: 272.8, pitch: -4.8, duration: 3 },
   ]
 
   const tweens = []
@@ -184,9 +184,17 @@ function flyTween(viewer: Cesium.Viewer) {
           cancelAnimationFrame(animateId)
         }
       })
-      .start()
 
     tweens.push(tween)
+  }
+
+  for (let i = 0; i < tweens.length; i++) {
+    if (i === tweens.length - 1) {
+      tweens[i].chain()
+      break
+    }
+
+    tweens[i].chain(tweens[i + 1])
   }
 
   // 动画更新循环
@@ -197,5 +205,6 @@ function flyTween(viewer: Cesium.Viewer) {
 
   // 启动动画循环
   animate()
+  tweens[0].start()
 }
 ```
