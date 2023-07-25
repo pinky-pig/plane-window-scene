@@ -43,13 +43,19 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
   }
 
   function resumeTweenAnimation() {
+    // 1. 如果有正在播放的动画，直接跳出
+    const playingTween = tweens.value.find((t: any) => t.isPlaying() === true)
+    if (playingTween)
+      return
+
+    // 2. 如果没有正在播放的动画，说明已经暂停了，重新创建动画更新循环
     function animate() {
       animateId.value = requestAnimationFrame(animate)
       TWEEN.update()
     }
     animate()
-
-    currentTween.value.resume()
+    // 3. 重新启动当前暂停的动画。currentTween.value 可能为 null
+    currentTween.value?.resume()
   }
 
   function restartTweenAnimation() {
