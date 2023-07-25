@@ -14,6 +14,7 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
   const animateId = ref(0)
   const tweens = ref<any>([])
   const currentTween = ref<any>(null)
+  const isPlaying = ref(false)
 
   function startTweenAnimation() {
     tweens.value = createTween(points)
@@ -30,6 +31,7 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
     }
     animate()
     tweens.value[0].start()
+    isPlaying.value = true
 
     return tweens
   }
@@ -37,14 +39,14 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
   function pauseTweenAnimation() {
     currentTween.value = tweens.value.find((t: any) => t.isPlaying() === true)
     currentTween.value.pause()
+    isPlaying.value = false
 
     animateId.value && cancelAnimationFrame(animateId.value)
   }
 
   function resumeTweenAnimation() {
     // 1. 如果有正在播放的动画，直接跳出
-    const playingTween = tweens.value.find((t: any) => t.isPlaying() === true)
-    if (playingTween)
+    if (isPlaying.value)
       return
 
     // 2. 如果没有正在播放的动画，说明已经暂停了，重新创建动画更新循环
@@ -70,6 +72,7 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
     animate()
     // 4. 从头启动 tween 动画
     tweens.value[0].start()
+    isPlaying.value = true
   }
 
   function createTween(points: IPathPoint[]) {

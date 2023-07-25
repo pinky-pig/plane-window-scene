@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type * as Cesium from 'cesium'
+import * as Cesium from 'cesium'
 import { DefaultPath } from '~/cesium/params'
 
 import { useTweenCamera } from '~/cesium/useTweenCamera'
@@ -19,6 +19,15 @@ let tweenAnimation: any
 async function mapLoaded(viewer: Cesium.Viewer) {
   viewerInstance.value = viewer
   tweenAnimation = useTweenCamera(viewer, DefaultPath)
+
+  try {
+    const tileset = await Cesium.createGooglePhotorealistic3DTileset()
+    viewer.scene.primitives.add(tileset)
+  }
+  catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(`Error loading Photorealistic 3D Tiles tileset. ${error}`)
+  }
 }
 
 function handleStart() {
