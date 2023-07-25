@@ -10,19 +10,12 @@
 
 <br>
 
-- 设置默认的鼠标操作
+- 🐱‍🚀 设置默认的鼠标操作
 
-- 飞机整体视角
-  - 飞机运行轨迹
-  - 模拟飞机运动
+- 🚀 视角移动补间动画
 
-- 视角切换动画
 
-- 飞机窗户视角
-  - 飞机运动时，窗户视角随机颠簸，模拟真实感
-
-- 地图缩略图
-
+![window scene](https://cdn.jsdelivr.net/gh/pinky-pig/pic-bed/imageswindow scene.gif)
 
 ## Point
 
@@ -39,6 +32,9 @@
 
 6. 设置镜头补间动画。其实就是利用 Tween.js 和 viewer.scene.camera.setView 结合起来，在 Tween.js 的 .onUpdate 中设置 .setView ，这样就可以实现镜头的补间动画了。
 
+7. 补间动画的暂停继续与重新开始。只需要将所有的 tween 动画通过 chain() 连在一起，就能顺序播放。然后暂停的时候找到那个 tween 保存一下，设置 pause 。当继续的时候，刚才保存的那个 tween resume 就行了。重新开始的时候，将所有的 tween 都 stop ，然后再重头开始 start 就行了。
+
+8. 后面只需要设置路径的点，就能有一个流畅的镜头移动。
 
 ```ts
 // 设置镜头，然后以目的地为中心旋转角度
