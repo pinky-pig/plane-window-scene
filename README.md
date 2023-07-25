@@ -1,5 +1,5 @@
 <p align='center'>
-  <img src='https://cdn.jsdelivr.net/gh/pinky-pig/pic-bed/images20230718171725.png' alt='Plane Window Scene' width='600'/>
+  <img src='https://cdn.jsdelivr.net/gh/pinky-pig/pic-bed/imageswindow%20scene.gif' alt='Plane Window Scene' width='600'/>
 </p>
 
 ## Features
@@ -13,9 +13,6 @@
 - 🐱‍🚀 设置默认的鼠标操作
 
 - 🚀 视角移动补间动画
-
-
-![window scene](https://cdn.jsdelivr.net/gh/pinky-pig/pic-bed/imageswindow%20scene.gif)
 
 ## Point
 
