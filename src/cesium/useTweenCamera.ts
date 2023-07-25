@@ -25,13 +25,10 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
       cancelAnimationFrame(animateId.value)
     })
 
-    // 动画更新循环
     function animate() {
       animateId.value = requestAnimationFrame(animate)
       TWEEN.update()
     }
-
-    // 启动动画循环
     animate()
     tweens.value[0].start()
 
@@ -56,14 +53,18 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
   }
 
   function restartTweenAnimation() {
+    // 1. 先听着 requestAnimationFrame 的动画更新循环
     animateId.value && cancelAnimationFrame(animateId.value)
+    // 2. 停止所有的 tween 动画
     tweens.value.forEach((t: any) => t.stop())
-
-    tweens.value = []
-    animateId.value = 0
-    currentTween.value = null
-
-    startTweenAnimation()
+    // 3. 重新创建 tween 动画
+    function animate() {
+      animateId.value = requestAnimationFrame(animate)
+      TWEEN.update()
+    }
+    animate()
+    // 4. 从头启动 tween 动画
+    tweens.value[0].start()
   }
 
   function createTween(points: any[] = DefaultPath) {
@@ -85,8 +86,6 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
             orientation: {
               heading: Cesium.Math.toRadians(elapsed.heading ?? 0),
               pitch: Cesium.Math.toRadians(elapsed.pitch ?? -90),
-              // heading: Cesium.Math.toRadians(0),
-              // pitch: Cesium.Math.toRadians(0),
               roll: Cesium.Math.toRadians(0),
             },
           })

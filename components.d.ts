@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AnimateBar: typeof import('./src/components/AnimateBar.vue')['default']
     CesiumMap: typeof import('./src/components/CesiumMap.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

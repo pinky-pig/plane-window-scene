@@ -15,41 +15,40 @@ import { useTweenCamera } from '~/cesium/useTweenCamera'
 const viewerInstance = ref<Cesium.Viewer | null>(null)
 const mapOptions = { }
 
-function mapLoaded(viewer: Cesium.Viewer) {
+let tweenAnimation: any
+async function mapLoaded(viewer: Cesium.Viewer) {
   viewerInstance.value = viewer
-
-  const {
-    startTweenAnimation,
-    pauseTweenAnimation,
-    resumeTweenAnimation,
-  } = useTweenCamera(viewer, DefaultPath)
-
-  setTimeout(() => {
-    startTweenAnimation()
-    setTimeout(() => {
-      pauseTweenAnimation()
-
-      setTimeout(() => {
-        resumeTweenAnimation()
-      }, 1000 * 3)
-    }, 1000 * 5)
-  }, 1000 * 1)
+  tweenAnimation = useTweenCamera(viewer, DefaultPath)
 }
 
-async function handleClick() {
-  // const position = Cesium.Cartesian3.fromDegrees(108.3393365, 22.7407925, 90.7)
-  // await viewerInstance.value?.camera.flyTo({
-  //   destination: position,
-  //   duration: 2,
-  // })
+function handleStart() {
+  tweenAnimation.startTweenAnimation()
+}
+
+function handlePause() {
+  tweenAnimation.pauseTweenAnimation()
+}
+
+function handleResume() {
+  tweenAnimation.resumeTweenAnimation()
+}
+
+function handleRestart() {
+  tweenAnimation.restartTweenAnimation()
 }
 </script>
 
 <template>
-  <div class="box-container" @click="handleClick">
+  <div class="box-container">
     <img class="hidden" src="/bg.png" alt="Your Image">
     <CesiumMap class="overlay" :options="mapOptions" @onload="mapLoaded" />
   </div>
+  <AnimateBar
+    @start="handleStart"
+    @pause="handlePause"
+    @resume="handleResume"
+    @restart="handleRestart"
+  />
 </template>
 
 <style scoped>
@@ -65,7 +64,7 @@ async function handleClick() {
 }
 
 .box-container img {
-  max-height: 90vh;
+  max-height: 80vh;
   width: auto;
   display: block;
   object-fit: contain;
