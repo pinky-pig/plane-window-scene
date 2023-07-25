@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import * as Cesium from 'cesium'
-import { ref } from 'vue'
-import * as TWEEN from '@tweenjs/tween.js'
-import { DefaultPath, DefaultPosition } from '~/cesium/params'
+import type * as Cesium from 'cesium'
+import { DefaultPath } from '~/cesium/params'
+
+import { useTweenCamera } from '~/cesium/useTweenCamera'
 
 // 1. 天空视角
 // 3. 加载 Google 3DTiles
@@ -14,118 +14,26 @@ import { DefaultPath, DefaultPosition } from '~/cesium/params'
 
 const viewerInstance = ref<Cesium.Viewer | null>(null)
 const mapOptions = { }
-const defaultCesiumPosition = Cesium.Cartesian3.fromDegrees(DefaultPosition[0], DefaultPosition[1], DefaultPosition[2])
 
 function mapLoaded(viewer: Cesium.Viewer) {
   viewerInstance.value = viewer
 
-  main()
-}
-
-function main() {
-  // 1. 看天空
-  viewerInstance.value!.scene.camera.setView({
-    destination: defaultCesiumPosition,
-    orientation: {
-      heading: Cesium.Math.toRadians(0),
-      pitch: Cesium.Math.toRadians(25),
-      roll: Cesium.Math.toRadians(0),
-    },
-  })
-  // 2. 加载 Google 3DTiles
-
-  // 3. 提示开始运动
-
-  // 4. 视角下移倾斜
-  // setTimeout(() => {
-  //   const center = Cesium.Cartesian3.fromDegrees(DefaultPosition[0], DefaultPosition[1], DefaultPosition[2])
-  //   viewer.camera.flyToBoundingSphere(
-  //     new Cesium.BoundingSphere(center, -0),
-  //     {
-  //       offset: new Cesium.HeadingPitchRange(
-  //         Cesium.Math.toRadians(0),
-  //         Cesium.Math.toRadians(-15),
-  //         0,
-  //       ),
-  //       duration: 2,
-  //     },
-  //   )
-  // }, 1000 * 5)
+  const {
+    startTweenAnimation,
+    pauseTweenAnimation,
+    resumeTweenAnimation,
+  } = useTweenCamera(viewer, DefaultPath)
 
   setTimeout(() => {
     startTweenAnimation()
-  }, 1000 * 6)
-}
+    setTimeout(() => {
+      pauseTweenAnimation()
 
-function startTweenAnimation() {
-  let animateId: number = 0
-
-  const tweens = createTween()
-  const lastTween = tweens[tweens.length - 1]
-
-  // 在最后一个 tween 终止动画更新循环
-  lastTween.onComplete(() => {
-    cancelAnimationFrame(animateId)
-  })
-
-  // 动画更新循环
-  function animate() {
-    animateId = requestAnimationFrame(animate)
-    TWEEN.update()
-  }
-
-  // 启动动画循环
-  animate()
-  tweens[0].start()
-}
-
-function createTween(points: any[] = DefaultPath) {
-  const tweens = []
-  const animateId: number = 0
-
-  for (let i = 0; i < points.length - 1; i++) {
-    const startObject = points[i]
-    const stopObject = points[i + 1]
-    const duration = Cesium.defaultValue(stopObject.duration, 3) * 1000
-
-    const tween = new TWEEN.Tween(startObject)
-      .to(stopObject, duration) // 使用duration作为过渡时间
-      .easing(TWEEN.Easing.Linear.None)
-      .onUpdate((elapsed) => {
-        const position = Cesium.Cartesian3.fromDegrees(elapsed.lng, elapsed.lat, elapsed.alt)
-
-        viewerInstance.value!.scene.camera.setView({
-          destination: position,
-          orientation: {
-            heading: Cesium.Math.toRadians(elapsed.heading ?? 0),
-            pitch: Cesium.Math.toRadians(elapsed.pitch ?? -90),
-            // heading: Cesium.Math.toRadians(0),
-            // pitch: Cesium.Math.toRadians(0),
-            roll: Cesium.Math.toRadians(0),
-          },
-        })
-      })
-      .onComplete(() => {
-        // 检查当前Tween是否达到了最后一个点
-        if (i === points.length - 2) {
-          // 停止动画更新循环，不再调用TWEEN.update()
-          cancelAnimationFrame(animateId)
-        }
-      })
-
-    tweens.push(tween)
-  }
-
-  // 将数组中的动画链式调用
-  for (let i = 0; i < tweens.length; i++) {
-    if (i === tweens.length - 1) {
-      tweens[i].chain()
-      break
-    }
-    tweens[i].chain(tweens[i + 1])
-  }
-
-  return tweens
+      setTimeout(() => {
+        resumeTweenAnimation()
+      }, 1000 * 3)
+    }, 1000 * 5)
+  }, 1000 * 1)
 }
 
 async function handleClick() {
