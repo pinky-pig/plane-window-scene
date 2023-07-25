@@ -1,6 +1,5 @@
 import * as Cesium from 'cesium'
 import * as TWEEN from '@tweenjs/tween.js'
-import { DefaultPath } from '~/cesium/params'
 
 interface IPathPoint {
   lng: number
@@ -17,7 +16,7 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
   const currentTween = ref<any>(null)
 
   function startTweenAnimation() {
-    tweens.value = createTween()
+    tweens.value = createTween(points)
     const lastTween = tweens.value[tweens.value.length - 1]
 
     // 在最后一个 tween 终止动画更新循环
@@ -73,7 +72,7 @@ export function useTweenCamera(viewer: Cesium.Viewer, points: IPathPoint[]) {
     tweens.value[0].start()
   }
 
-  function createTween(points: any[] = DefaultPath) {
+  function createTween(points: IPathPoint[]) {
     const tweens = []
 
     for (let i = 0; i < points.length - 1; i++) {
