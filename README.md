@@ -15,7 +15,7 @@
 - 🚀 视角移动补间动画
 
 
-![window scene](https://cdn.jsdelivr.net/gh/pinky-pig/pic-bed/imageswindow scene.gif)
+![window scene](https://cdn.jsdelivr.net/gh/pinky-pig/pic-bed/imageswindow%20scene.gif)
 
 ## Point
 
